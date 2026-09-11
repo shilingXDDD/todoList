@@ -1,0 +1,11 @@
+# 换行符规则：配合 core.autocrlf=true 使用
+# gradlew 是 shell 脚本，必须保持 LF，否则在 Git Bash / WSL / Linux 下报 bad interpreter
+gradlew text eol=lf
+*.sh text eol=lf
+*.bat text eol=crlf
+
+# 二进制文件不做换行转换
+*.jar binary
+*.png binary
+*.jpg binary
+*.webp binary
