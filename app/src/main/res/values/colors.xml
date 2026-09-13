@@ -11,4 +11,5 @@
     <color name="surface_dark">#FF1E1E1E</color>
     <color name="text_secondary_light">#FF666666</color>
     <color name="text_secondary_dark">#FFB3B3B3</color>
+    <color name="delete_red">#FFD32F2F</color>
 </resources>
