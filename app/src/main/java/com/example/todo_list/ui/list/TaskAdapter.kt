@@ -2,6 +2,7 @@ package com.example.todo_list.ui.list
 
 import android.graphics.Paint
 import android.view.LayoutInflater
+import android.view.View
 import android.view.ViewGroup
 import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.ListAdapter
@@ -30,11 +31,14 @@ class TaskAdapter(
         holder.binding.titleTextView.text = task.title
 
         if (task.description.isBlank()) {
-            holder.binding.descriptionTextView.visibility = android.view.View.GONE
+            holder.binding.descriptionTextView.visibility = View.GONE
         } else {
-            holder.binding.descriptionTextView.visibility = android.view.View.VISIBLE
+            holder.binding.descriptionTextView.visibility = View.VISIBLE
             holder.binding.descriptionTextView.text = task.description
         }
+
+        // 暂无截止日期字段，先隐藏，等附加项"日期时间设置"做完再显示
+        holder.binding.dueDateTextView.visibility = View.GONE
 
         // 完成后标题加中划线
         holder.binding.titleTextView.paintFlags =
@@ -44,8 +48,9 @@ class TaskAdapter(
                 holder.binding.titleTextView.paintFlags and Paint.STRIKE_THRU_TEXT_FLAG.inv()
             }
 
-        // 整行点击 → 进入编辑页
-        holder.binding.root.setOnClickListener {
+        // ⚠️ 点击目标用卡片容器而不是 root：
+        // root 现在带 padding（用于卡片间距），点空隙不应触发
+        holder.binding.cardLayout.setOnClickListener {
             onItemClick(task)
         }
 

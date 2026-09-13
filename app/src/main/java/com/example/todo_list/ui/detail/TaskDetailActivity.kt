@@ -28,9 +28,13 @@ class TaskDetailActivity : AppCompatActivity() {
         private const val NO_TASK_ID = -1L
 
         fun startUI(context: Context, taskId: Long) {
+            context.startActivity(getIntent(context, taskId))
+        }
+
+        fun getIntent(context: Context, taskId: Long): Intent {
             val intent = Intent(context, TaskDetailActivity::class.java)
             intent.putExtra(EXTRA_TASK_ID, taskId)
-            context.startActivity(intent)
+            return intent
         }
     }
 
@@ -42,19 +46,32 @@ class TaskDetailActivity : AppCompatActivity() {
     private var currentTask: Task? = null
 
     /**
+     * 权限申请通过后才执行的动作。
+     *
+     * 因为权限申请是异步的（要等用户在系统弹窗里点"允许"），
+     * 所以先把要执行的动作存起来，等回调拿到了再执行。
+     */
+    private var pendingReminderAction: (() -> Unit)? = null
+
+    /**
      * 通知权限申请结果回调。
      * registerForActivityResult 必须在 Activity 创建时（字段初始化阶段）注册，
      * 不能放在 onClick 里，否则会抛 IllegalStateException。
      */
     private val requestNotificationPermission =
         registerForActivityResult(ActivityResultContracts.RequestPermission()) { granted ->
-            if (!granted) {
+            if (granted) {
+                // 用户点了"允许"：立刻执行之前存下的动作（发提醒）
+                pendingReminderAction?.invoke()
+            } else {
                 Toast.makeText(
                     this,
                     R.string.msg_notification_permission_denied,
                     Toast.LENGTH_SHORT
                 ).show()
             }
+            // 无论成功失败都清空，避免下次误触发或持有 Activity 引用
+            pendingReminderAction = null
         }
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -181,9 +198,9 @@ class TaskDetailActivity : AppCompatActivity() {
             if (granted) {
                 onGranted()
             } else {
+                // 先把动作存起来，等用户在系统弹窗里点"允许"后由回调执行
+                pendingReminderAction = onGranted
                 requestNotificationPermission.launch(Manifest.permission.POST_NOTIFICATIONS)
-                // 申请是异步的，结果在回调里；用户同意后需再次点击才会发提醒。
-                // 如果想"同意后立刻发送"，可把 onGranted 存成字段，在回调里调用。
             }
         } else {
             onGranted()

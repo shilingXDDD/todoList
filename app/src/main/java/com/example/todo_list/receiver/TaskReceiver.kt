@@ -45,12 +45,10 @@ class TaskReceiver : BroadcastReceiver() {
         }
 
         // ② PendingIntent：点通知进详情页
-        val contentIntent = Intent(context, TaskDetailActivity::class.java)
-            .putExtra(EXTRA_TASK_ID, taskId)
         val pendingIntent = PendingIntent.getActivity(
             context,
             taskId.toInt(),                    // requestCode 用 taskId，不同任务通知互不覆盖
-            contentIntent,
+            TaskDetailActivity.getIntent(context,taskId),
             PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE
         )
 

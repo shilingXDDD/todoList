@@ -12,4 +12,9 @@
     <color name="text_secondary_light">#FF666666</color>
     <color name="text_secondary_dark">#FFB3B3B3</color>
     <color name="delete_red">#FFD32F2F</color>
+
+    <!-- 列表页配色（参考滴答清单） -->
+    <color name="page_background">#FFF2F3F5</color>
+    <color name="card_background">#FFFFFFFF</color>
+    <color name="due_date_red">#FFE53935</color>
 </resources>

@@ -2,55 +2,82 @@
 <androidx.constraintlayout.widget.ConstraintLayout
         xmlns:android="http://schemas.android.com/apk/res/android"
         xmlns:app="http://schemas.android.com/apk/res-auto"
-        xmlns:tools="http://schemas.android.com/tools"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:paddingStart="16dp"
-        android:paddingEnd="16dp"
-        android:paddingTop="12dp"
-        android:paddingBottom="12dp"
-        android:background="?attr/selectableItemBackground"
-        android:clickable="true"
-        android:focusable="true">
-    <CheckBox
-            android:id="@+id/completedCheckBox"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toTopOf="parent"
-            app:layout_constraintBottom_toBottomOf="parent" />
+        android:background="@color/page_background"
+        android:paddingStart="12dp"
+        android:paddingEnd="12dp"
+        android:paddingTop="3dp"
+        android:paddingBottom="3dp">
 
     <LinearLayout
+            android:id="@+id/cardLayout"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
-            android:orientation="vertical"
-            android:layout_marginStart="12dp"
-            app:layout_constraintStart_toEndOf="@id/completedCheckBox"
+            android:background="@drawable/bg_task_card"
+            android:clickable="true"
+            android:focusable="true"
+            android:gravity="center_vertical"
+            android:orientation="horizontal"
+            android:paddingStart="12dp"
+            android:paddingEnd="12dp"
+            android:paddingTop="14dp"
+            android:paddingBottom="14dp"
+            app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintTop_toTopOf="parent"
             app:layout_constraintBottom_toBottomOf="parent">
 
-        <TextView
-                android:id="@+id/titleTextView"
-                android:layout_width="match_parent"
+        <!-- 勾选框：用 selector 实现空心/实心两种状态 -->
+        <CheckBox
+                android:id="@+id/completedCheckBox"
+                android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:textSize="16sp"
-                android:textStyle="bold"
-                android:textColor="?attr/colorOnSurface"
-                android:maxLines="1"
-                android:ellipsize="end"
-                android:hint="@string/hint_task_title"/>
+                android:button="@drawable/ic_checkbox_square"
+                android:minWidth="0dp"
+                android:minHeight="0dp"
+                android:paddingStart="0dp"
+                android:paddingEnd="10dp"/>
 
-        <TextView
-                android:id="@+id/descriptionTextView"
-                android:layout_width="match_parent"
+        <!-- 标题 + 描述 -->
+        <LinearLayout
+                android:layout_width="0dp"
                 android:layout_height="wrap_content"
-                android:layout_marginTop="2dp"
-                android:textSize="13sp"
-                android:textColor="?android:attr/textColorSecondary"
-                android:maxLines="1"
-                android:ellipsize="end"
-                android:hint="@string/hint_task_description" />
+                android:layout_weight="1"
+                android:orientation="vertical">
+
+            <TextView
+                    android:id="@+id/titleTextView"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:ellipsize="end"
+                    android:maxLines="1"
+                    android:textColor="?android:attr/textColorPrimary"
+                    android:textSize="16sp"
+                    tools:text="物理：一张卷子，大概40分钟"/>
+
+            <TextView
+                    android:id="@+id/descriptionTextView"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="3dp"
+                    android:ellipsize="end"
+                    android:maxLines="1"
+                    android:textColor="?android:attr/textColorSecondary"
+                    android:textSize="13sp"
+                    tools:text="做到第十五题"/>
+
+        </LinearLayout>
+
+        <!-- 截止日期：靠右，红色 -->
+        <TextView
+                android:id="@+id/dueDateTextView"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="8dp"
+                android:textColor="@color/due_date_red"
+                android:textSize="12sp"
+                tools:text="2019年9月17日"/>
 
     </LinearLayout>
 

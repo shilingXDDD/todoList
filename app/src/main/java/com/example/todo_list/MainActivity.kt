@@ -49,6 +49,7 @@ class MainActivity : AppCompatActivity() {
         }
     }
 
+    //权限申请
     // TaskDetailActivity 里
     private val requestNotificationPermission =
         registerForActivityResult(ActivityResultContracts.RequestPermission()) { granted ->

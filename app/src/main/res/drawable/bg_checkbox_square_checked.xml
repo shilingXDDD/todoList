@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+    已完成状态的方框：实心填充
+    与 bg_checkbox_square 配合做成 selector，随勾选状态自动切换
+-->
+<shape xmlns:android="http://schemas.android.com/apk/res/android"
+       android:shape="rectangle">
+    <solid android:color="?attr/colorAccent"/>
+    <corners android:radius="5dp"/>
+</shape>

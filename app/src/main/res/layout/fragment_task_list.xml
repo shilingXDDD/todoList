@@ -4,25 +4,30 @@
         xmlns:app="http://schemas.android.com/apk/res-auto"
         xmlns:tools="http://schemas.android.com/tools"
         android:layout_width="match_parent"
-        android:layout_height="match_parent">
+        android:layout_height="match_parent"
+        android:background="@color/page_background">
 
+    <!-- 同步按钮：改成无边框文字按钮，右侧对齐，视觉上更轻 -->
     <Button
             android:id="@+id/btn_sync"
+            style="?attr/borderlessButtonStyle"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_marginStart="16dp"
-            android:layout_marginTop="8dp"
+            android:layout_marginTop="2dp"
+            android:layout_marginEnd="6dp"
             android:text="@string/action_sync"
-            app:layout_constraintStart_toStartOf="parent"
+            android:textColor="?attr/colorAccent"
+            app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintTop_toTopOf="parent" />
 
     <androidx.recyclerview.widget.RecyclerView
             android:id="@+id/taskRecyclerView"
             android:layout_width="0dp"
             android:layout_height="0dp"
+            android:paddingTop="6dp"
+            android:clipToPadding="false"
             app:layoutManager="androidx.recyclerview.widget.LinearLayoutManager"
             app:layout_constraintTop_toBottomOf="@id/btn_sync"
-            app:layout_constraintTop_toTopOf="parent"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintEnd_toEndOf="parent"
