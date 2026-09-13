@@ -4,6 +4,7 @@
 >
 
     <application
+            android:name=".TodoApplication"
             android:allowBackup="true"
             android:fullBackupContent="@xml/backup_rules"
             tools:targetApi="31"
@@ -24,12 +25,12 @@
         <activity
                 android:name=".ui.edit.TaskEditActivity"
                 android:exported="false"
-                android:parentActivityName=".MainActivity" />
+                android:parentActivityName=".MainActivity"/>
 
         <activity
                 android:name=".ui.detail.TaskDetailActivity"
                 android:exported="false"
-                android:parentActivityName=".MainActivity" />
+                android:parentActivityName=".MainActivity"/>
     </application>
 
 </manifest>

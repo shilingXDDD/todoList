@@ -2,9 +2,13 @@ package com.example.todo_list
 
 import android.os.Bundle
 import androidx.appcompat.app.AppCompatActivity
+import androidx.lifecycle.lifecycleScope
+import com.example.todo_list.data.Task
+import com.example.todo_list.data.TaskRepository
 import com.example.todo_list.databinding.ActivityMainBinding
 import com.example.todo_list.ui.list.TaskListFragment
 import com.example.todo_list.ui.settings.SettingsFragment
+import kotlinx.coroutines.launch
 
 class MainActivity : AppCompatActivity() {
 

@@ -7,11 +7,13 @@ import android.os.Bundle
 import android.widget.Toast
 import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
+import androidx.lifecycle.lifecycleScope
 import com.example.todo_list.R
 import com.example.todo_list.data.Task
 import com.example.todo_list.data.TaskRepository
 import com.example.todo_list.databinding.ActivityTaskDetailBinding
 import com.example.todo_list.ui.edit.TaskEditActivity
+import kotlinx.coroutines.launch
 
 class TaskDetailActivity : AppCompatActivity() {
 
@@ -26,14 +28,15 @@ class TaskDetailActivity : AppCompatActivity() {
         }
     }
 
-    private lateinit var binding: ActivityTaskDetailBinding
+    private val binding by lazy {
+        ActivityTaskDetailBinding.inflate(layoutInflater)
+    }
 
     private var taskId = NO_TASK_ID
     private var currentTask: Task? = null
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        binding = ActivityTaskDetailBinding.inflate(layoutInflater)
         setContentView(binding.root)
 
         taskId = intent.getLongExtra(EXTRA_TASK_ID, NO_TASK_ID)
@@ -51,14 +54,22 @@ class TaskDetailActivity : AppCompatActivity() {
     }
 
     private fun setupDetail(taskId: Long) {
-        val task = TaskRepository.getTaskById(taskId)
-        if (task == null) {
-            Toast.makeText(this, R.string.msg_task_not_found, Toast.LENGTH_SHORT).show()
-            finish()
-            return
-        }
-        currentTask = task
+        // 查数据库是 suspend，放进协程
+        lifecycleScope.launch {
+            val task = TaskRepository.getTaskById(taskId)
+            if (task == null) {
+                Toast.makeText(this@TaskDetailActivity, R.string.msg_task_not_found, Toast.LENGTH_SHORT)
+                    .show()
+                finish()
+                return@launch
+            }
+            currentTask = task
 
+            renderTask(task)
+        }
+    }
+
+    private fun renderTask(task: Task) {
         // 标题：已完成时加中划线
         binding.txvTitle.text = task.title
         binding.txvTitle.paintFlags =
@@ -88,9 +99,11 @@ class TaskDetailActivity : AppCompatActivity() {
 
         binding.btnToggleComplete.setOnClickListener {
             val current = currentTask ?: return@setOnClickListener
-            // 用 copy 生成新对象再写回，不要直接改字段
-            TaskRepository.updateTask(current.copy(isCompleted = !current.isCompleted))
-            setupDetail(taskId)   // 页面在前台不会走 onResume，手动刷新一次
+            lifecycleScope.launch {
+                // 用 copy 生成新对象再写回，不要直接改字段
+                TaskRepository.updateTask(current.copy(isCompleted = !current.isCompleted))
+                setupDetail(taskId)   // 页面在前台不会走 onResume，手动刷新一次
+            }
         }
 
         binding.btnEdit.setOnClickListener {
@@ -102,9 +115,11 @@ class TaskDetailActivity : AppCompatActivity() {
             AlertDialog.Builder(this)
                 .setTitle(R.string.msg_delete_confirm_title)
                 .setPositiveButton(R.string.action_confirm) { _, _ ->
-                    TaskRepository.deleteTask(current)
-                    Toast.makeText(this, R.string.msg_task_deleted, Toast.LENGTH_SHORT).show()
-                    finish()      // 回到列表页
+                    lifecycleScope.launch {
+                        TaskRepository.deleteTask(current)
+                        Toast.makeText(this@TaskDetailActivity, R.string.msg_task_deleted, Toast.LENGTH_SHORT).show()
+                        finish()      // 回到列表页
+                    }
                 }
                 // 取消按钮：只关闭对话框，不做任何删除
                 .setNegativeButton(R.string.action_cancel) { dialog, _ -> dialog.dismiss() }

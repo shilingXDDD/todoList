@@ -6,10 +6,12 @@ import android.os.Bundle
 import android.view.MenuItem
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
+import androidx.lifecycle.lifecycleScope
 import com.example.todo_list.R
 import com.example.todo_list.data.Task
 import com.example.todo_list.data.TaskRepository
 import com.example.todo_list.databinding.ActivityTaskEditBinding
+import kotlinx.coroutines.launch
 
 class TaskEditActivity : AppCompatActivity() {
 
@@ -50,17 +52,21 @@ class TaskEditActivity : AppCompatActivity() {
     }
 
     private fun setupEditMode() {
-        val task = TaskRepository.getTaskById(taskId)
-        if (task == null) {
-            // ⚠️ 判空：ID 非法时不能崩
-            Toast.makeText(this, R.string.msg_task_not_found, Toast.LENGTH_SHORT).show()
-            finish()
-            return
+        // getTaskById 是 suspend（查数据库是耗时操作），必须放进协程
+        lifecycleScope.launch {
+            val task = TaskRepository.getTaskById(taskId)
+            if (task == null) {
+                // ⚠️ 判空：ID 非法时不能崩
+                Toast.makeText(this@TaskEditActivity, R.string.msg_task_not_found, Toast.LENGTH_SHORT)
+                    .show()
+                finish()
+                return@launch      // 协程里中断要用 return@launch，不能写裸 return
+            }
+            supportActionBar?.title = getString(R.string.title_edit_task)
+            binding.titleEditText.setText(task.title)
+            binding.descriptionEditText.setText(task.description)
+            binding.completedCheckBox.isChecked = task.isCompleted
         }
-        supportActionBar?.title = getString(R.string.title_edit_task)
-        binding.titleEditText.setText(task.title)
-        binding.descriptionEditText.setText(task.description)
-        binding.completedCheckBox.isChecked = task.isCompleted
     }
 
     private fun setupCreateMode() {
@@ -79,18 +85,22 @@ class TaskEditActivity : AppCompatActivity() {
         val description = binding.descriptionEditText.text?.toString()?.trim().orEmpty()
         val isCompleted = binding.completedCheckBox.isChecked
 
-        if (taskId != NO_TASK_ID) {
-            TaskRepository.updateTask(
-                Task(taskId, title, description, isCompleted)
-            )
-        } else {
-            TaskRepository.addTask(
-                Task(title = title, description = description, isCompleted = isCompleted)
-            )
-        }
+        // 数据库写入放进协程（suspend 函数的硬性要求）
+        lifecycleScope.launch {
+            if (taskId != NO_TASK_ID) {
+                TaskRepository.updateTask(
+                    Task(taskId, title, description, isCompleted)
+                )
+            } else {
+                TaskRepository.addTask(
+                    Task(title = title, description = description, isCompleted = isCompleted)
+                )
+            }
 
-        Toast.makeText(this, R.string.msg_save_success, Toast.LENGTH_SHORT).show()
-        finish()      // 关闭当前页，回到列表页（会触发列表页的 onResume）
+            Toast.makeText(this@TaskEditActivity, R.string.msg_save_success, Toast.LENGTH_SHORT)
+                .show()
+            finish()  // 关闭当前页，回到列表页
+        }
     }
 
     override fun onOptionsItemSelected(item: MenuItem): Boolean {

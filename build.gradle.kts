@@ -2,4 +2,7 @@
 plugins {
     id("com.android.application") version "8.2.0" apply false
     id("org.jetbrains.kotlin.android") version "1.9.24" apply false
+    // KSP：Room 的注解处理器。版本必须与 Kotlin 版本对应
+    // Kotlin 1.9.24 → KSP 1.9.24-1.0.20
+    id("com.google.devtools.ksp") version "1.9.24-1.0.20" apply false
 }
