@@ -49,5 +49,14 @@
     <string name="msg_task_deleted">已删除</string>
     <string name="msg_task_not_found">任务不存在</string>
 
+    <!-- 同步 -->
+    <string name="action_sync">同步</string>
+    <string name="msg_sync_finished">同步完成</string>
+
+    <!-- 通知 -->
+    <string name="channel_name">任务提醒</string>
+    <string name="msg_reminder_content">你有一个任务待处理</string>
+    <string name="msg_reminder_sent">已发送提醒</string>
+    <string name="msg_notification_permission_denied">未授予通知权限，将无法收到提醒</string>
 
 </resources>

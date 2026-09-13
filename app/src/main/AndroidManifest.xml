@@ -2,6 +2,7 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
           xmlns:tools="http://schemas.android.com/tools"
 >
+    <uses-permission android:name="android.permission.POST_NOTIFICATIONS" />
 
     <application
             android:name=".TodoApplication"
@@ -31,6 +32,17 @@
                 android:name=".ui.detail.TaskDetailActivity"
                 android:exported="false"
                 android:parentActivityName=".MainActivity"/>
+
+
+        <service
+                android:name=".service.TaskSyncService"
+                android:exported="false" />
+
+        <receiver
+                android:name=".receiver.TaskReceiver"
+                android:exported="false" />
+
+
     </application>
 
 </manifest>

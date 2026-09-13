@@ -1,7 +1,12 @@
 package com.example.todo_list
 
+import android.content.pm.PackageManager
+import android.os.Build
 import android.os.Bundle
+import android.widget.Toast
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.appcompat.app.AppCompatActivity
+import androidx.core.content.ContextCompat
 import androidx.lifecycle.lifecycleScope
 import com.example.todo_list.data.Task
 import com.example.todo_list.data.TaskRepository
@@ -9,6 +14,7 @@ import com.example.todo_list.databinding.ActivityMainBinding
 import com.example.todo_list.ui.list.TaskListFragment
 import com.example.todo_list.ui.settings.SettingsFragment
 import kotlinx.coroutines.launch
+import android.Manifest
 
 class MainActivity : AppCompatActivity() {
 
@@ -40,6 +46,26 @@ class MainActivity : AppCompatActivity() {
                 }
             }
             true
+        }
+    }
+
+    // TaskDetailActivity 里
+    private val requestNotificationPermission =
+        registerForActivityResult(ActivityResultContracts.RequestPermission()) { granted ->
+            if (!granted) {
+                Toast.makeText(this, R.string.msg_notification_permission_denied, Toast.LENGTH_SHORT).show()
+            }
+        }
+
+    private fun ensureNotificationPermission(onGranted: () -> Unit) {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+            when {
+                ContextCompat.checkSelfPermission(this, Manifest.permission.POST_NOTIFICATIONS)
+                        == PackageManager.PERMISSION_GRANTED -> onGranted()
+                else -> requestNotificationPermission.launch(Manifest.permission.POST_NOTIFICATIONS)
+            }
+        } else {
+            onGranted()     // Android 13 以下不需要申请
         }
     }
 }

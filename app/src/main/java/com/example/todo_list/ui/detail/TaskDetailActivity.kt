@@ -1,17 +1,23 @@
 package com.example.todo_list.ui.detail
 
+import android.Manifest
 import android.content.Context
 import android.content.Intent
+import android.content.pm.PackageManager
 import android.graphics.Paint
+import android.os.Build
 import android.os.Bundle
 import android.widget.Toast
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
+import androidx.core.content.ContextCompat
 import androidx.lifecycle.lifecycleScope
 import com.example.todo_list.R
 import com.example.todo_list.data.Task
 import com.example.todo_list.data.TaskRepository
 import com.example.todo_list.databinding.ActivityTaskDetailBinding
+import com.example.todo_list.receiver.TaskReceiver
 import com.example.todo_list.ui.edit.TaskEditActivity
 import kotlinx.coroutines.launch
 
@@ -34,6 +40,22 @@ class TaskDetailActivity : AppCompatActivity() {
 
     private var taskId = NO_TASK_ID
     private var currentTask: Task? = null
+
+    /**
+     * 通知权限申请结果回调。
+     * registerForActivityResult 必须在 Activity 创建时（字段初始化阶段）注册，
+     * 不能放在 onClick 里，否则会抛 IllegalStateException。
+     */
+    private val requestNotificationPermission =
+        registerForActivityResult(ActivityResultContracts.RequestPermission()) { granted ->
+            if (!granted) {
+                Toast.makeText(
+                    this,
+                    R.string.msg_notification_permission_denied,
+                    Toast.LENGTH_SHORT
+                ).show()
+            }
+        }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -125,6 +147,46 @@ class TaskDetailActivity : AppCompatActivity() {
                 .setNegativeButton(R.string.action_cancel) { dialog, _ -> dialog.dismiss() }
                 .create()
                 .show()
+        }
+
+        binding.btnTestReminder.setOnClickListener {
+            val current = currentTask ?: return@setOnClickListener
+
+            ensureNotificationPermission {
+                // 发送显式广播（同一套写法：setPackage）
+                val intent = Intent(TaskReceiver.ACTION_TASK_REMIND)
+                    .setPackage(packageName)
+                    .putExtra(TaskReceiver.EXTRA_TASK_ID, current.id)
+                    .putExtra(TaskReceiver.EXTRA_TASK_TITLE, current.title)
+                sendBroadcast(intent)
+
+                Toast.makeText(this, R.string.msg_reminder_sent, Toast.LENGTH_SHORT).show()
+            }
+        }
+    }
+
+    /**
+     * 确保拿到通知权限后再执行 onGranted。
+     *
+     * Android 13（API 33）起，发通知需要运行时申请 POST_NOTIFICATIONS 权限，
+     * 否则通知完全不显示。13 以下系统不需要申请，直接执行。
+     */
+    private fun ensureNotificationPermission(onGranted: () -> Unit) {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+            val granted = ContextCompat.checkSelfPermission(
+                this,
+                Manifest.permission.POST_NOTIFICATIONS
+            ) == PackageManager.PERMISSION_GRANTED
+
+            if (granted) {
+                onGranted()
+            } else {
+                requestNotificationPermission.launch(Manifest.permission.POST_NOTIFICATIONS)
+                // 申请是异步的，结果在回调里；用户同意后需再次点击才会发提醒。
+                // 如果想"同意后立刻发送"，可把 onGranted 存成字段，在回调里调用。
+            }
+        } else {
+            onGranted()
         }
     }
 }
