@@ -54,11 +54,10 @@
             android:paddingTop="10dp"
             android:paddingBottom="10dp"
             android:scrollbars="none"
-            android:visibility="gone"
+            android:visibility="visible"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@id/topBarDivider"
-            tools:visibility="visible">
+            app:layout_constraintTop_toBottomOf="@id/searchView">
 
         <com.google.android.material.chip.ChipGroup
                 android:id="@+id/filterChipGroup"
@@ -124,7 +123,7 @@
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@id/searchView"
+            app:layout_constraintTop_toBottomOf="@id/dateFilterBar"
             tools:listitem="@layout/item_task" />
 
     <!-- ==================== 空状态 ====================
@@ -145,7 +144,7 @@
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@id/topBarDivider"
+            app:layout_constraintTop_toBottomOf="@id/dateFilterBar"
             tools:visibility="visible" />
 
     <!-- ==================== 悬浮按钮 ==================== -->

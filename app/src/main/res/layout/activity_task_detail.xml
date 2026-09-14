@@ -173,6 +173,36 @@
                             android:textSize="15sp"
                             tools:text="把 UI 重构成滴答清单风格" />
 
+                    <!-- 截止日期（第四步） -->
+                    <TextView
+                            android:id="@+id/txv_due_date"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:layout_marginTop="14dp"
+                            android:textColor="@color/text_secondary"
+                            android:textSize="14sp"
+                            tools:text="截止：2026-09-15 18:00" />
+
+                    <!-- 备注（第四步） -->
+                    <TextView
+                            android:id="@+id/txv_note"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:layout_marginTop="14dp"
+                            android:lineSpacingExtra="4dp"
+                            android:textColor="@color/text_primary"
+                            android:textSize="15sp"
+                            tools:text="记得带上电脑" />
+
+                    <!-- 链接（第四步，可点击跳转浏览器） -->
+                    <TextView
+                            android:id="@+id/txv_link"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:layout_marginTop="10dp"
+                            android:textColor="@color/primary"
+                            android:textSize="15sp" />
+
                 </LinearLayout>
 
             </com.google.android.material.card.MaterialCardView>

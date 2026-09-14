@@ -28,6 +28,7 @@ import com.example.todo_list.service.TaskSyncService
 import com.example.todo_list.ui.detail.TaskDetailActivity
 import com.example.todo_list.ui.edit.TaskEditActivity
 import kotlinx.coroutines.launch
+import java.util.Calendar
 
 class TaskListFragment : Fragment() {
 
@@ -38,6 +39,10 @@ class TaskListFragment : Fragment() {
     private var keyword = ""
 
     private var latestTasks: List<Task> = emptyList()
+
+    private var currentFilter = DateFilter.ALL
+
+    private enum class DateFilter { ALL, TODAY, OVERDUE }
 
     private var _binding: FragmentTaskListBinding? = null
     private val binding get() = _binding!!
@@ -116,7 +121,8 @@ class TaskListFragment : Fragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
         setupRecyclerView()
-        setupSearch()          // ← 漏了这行，搜索框永远不会生效
+        setupSearch()
+        setupDateFilter()
         observeTasks()
 
         binding.addTaskFab.setOnClickListener {
@@ -170,17 +176,62 @@ class TaskListFragment : Fragment() {
     }
 
     private fun applyFilter(allTasks: List<Task>){
-        val filtered = if (keyword.isBlank()) allTasks
-        //true表示忽略大小写
-        else allTasks.filter { it.title.contains(keyword, true) }
+        val now = System.currentTimeMillis()
+        var filtered = allTasks
+
+        // ① 先按关键词（true 表示忽略大小写）
+        if (keyword.isNotBlank()) {
+            filtered = filtered.filter { it.title.contains(keyword, true) }
+        }
+
+        // ② 再按日期
+        filtered = when (currentFilter) {
+            DateFilter.TODAY -> filtered.filter {
+                it.dueDate != null && it.dueDate in todayStart()..todayEnd()
+            }
+            DateFilter.OVERDUE -> filtered.filter {
+                // ⚠️ 已完成的不算过期
+                !it.isCompleted && it.dueDate != null && it.dueDate < now
+            }
+            else -> filtered
+        }
 
         taskAdapter.submitList(filtered)
 
-        // 无结果要有明确提示
+        // 无结果要有明确提示（区分"没任务"和"筛选/搜索没结果"）
         binding.emptyTextView.visibility = if (filtered.isEmpty()) View.VISIBLE else View.GONE
         binding.emptyTextView.text =
-            if (keyword.isBlank()) getString(R.string.empty_task_list)
+            if (keyword.isBlank() && currentFilter == DateFilter.ALL)
+                getString(R.string.empty_task_list)
             else getString(R.string.empty_search_result)
+    }
+
+    // ⚠️ 必须用 Calendar 按当天 0 点 / 23:59:59 算，
+    //    不能用 24*60*60*1000 加减（跨天边界会错）
+    private fun todayStart(): Long = Calendar.getInstance().apply {
+        set(Calendar.HOUR_OF_DAY, 0)
+        set(Calendar.MINUTE, 0)
+        set(Calendar.SECOND, 0)
+        set(Calendar.MILLISECOND, 0)
+    }.timeInMillis
+
+    private fun todayEnd(): Long = Calendar.getInstance().apply {
+        set(Calendar.HOUR_OF_DAY, 23)
+        set(Calendar.MINUTE, 59)
+        set(Calendar.SECOND, 59)
+        set(Calendar.MILLISECOND, 999)
+    }.timeInMillis
+
+    private fun setupDateFilter() {
+        // ⚠️ 用 setOnCheckedStateChangeListener，旧的 setOnCheckedChangeListener 已废弃
+        binding.filterChipGroup.setOnCheckedStateChangeListener { _, checkedIds ->
+            currentFilter = when (checkedIds.firstOrNull()) {
+                R.id.chipFilterToday   -> DateFilter.TODAY
+                R.id.chipFilterOverdue -> DateFilter.OVERDUE
+                else                   -> DateFilter.ALL
+            }
+            applyFilter(latestTasks)
+        }
     }
 
     private fun setupRecyclerView() {

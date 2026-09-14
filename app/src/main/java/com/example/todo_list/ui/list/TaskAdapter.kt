@@ -10,6 +10,8 @@ import androidx.recyclerview.widget.RecyclerView
 import com.example.todo_list.R
 import com.example.todo_list.data.Task
 import com.example.todo_list.databinding.ItemTaskBinding
+import com.example.todo_list.util.TimeUtil
+import android.graphics.Color
 
 class TaskAdapter(
     private val onItemClick: (Task) -> Unit,
@@ -35,6 +37,35 @@ class TaskAdapter(
         } else {
             holder.binding.categoryTextView.visibility = android.view.View.VISIBLE
             holder.binding.categoryTextView.text = task.category
+        }
+
+        // 优先级色条：卡片左侧的竖条
+        // 3高=红 2中=橙 1低=蓝 0无=透明
+        val priorityColor = when (task.priority) {
+            3 -> ContextCompat.getColor(holder.itemView.context, R.color.overdue_red)
+            2 -> Color.parseColor("#FF9800")
+            1 -> ContextCompat.getColor(holder.itemView.context, R.color.primary)
+            else -> Color.TRANSPARENT
+        }
+        holder.binding.priorityBar.setBackgroundColor(priorityColor)
+
+        // 截止日期：过期且未完成 → 红色
+        val dueDate = task.dueDate
+        if (dueDate != null) {
+            holder.binding.dueDateTextView.visibility = android.view.View.VISIBLE
+            holder.binding.dueDateTextView.text =
+                holder.itemView.context.getString(R.string.label_due_date, TimeUtil.format(dueDate))
+
+            // ⚠️ 已完成的任务不算过期
+            val isOverdue = !task.isCompleted && dueDate < System.currentTimeMillis()
+            holder.binding.dueDateTextView.setTextColor(
+                ContextCompat.getColor(
+                    holder.itemView.context,
+                    if (isOverdue) R.color.overdue_red else R.color.text_secondary
+                )
+            )
+        } else {
+            holder.binding.dueDateTextView.visibility = android.view.View.GONE
         }
 
         holder.binding.titleTextView.text = task.title

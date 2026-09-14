@@ -1,9 +1,12 @@
 package com.example.todo_list.ui.edit
 
+import android.app.DatePickerDialog
+import android.app.TimePickerDialog
 import android.content.Context
 import android.content.Intent
 import android.os.Bundle
 import android.view.MenuItem
+import android.widget.ArrayAdapter
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import androidx.lifecycle.lifecycleScope
@@ -11,12 +14,18 @@ import com.example.todo_list.R
 import com.example.todo_list.data.Task
 import com.example.todo_list.data.TaskRepository
 import com.example.todo_list.databinding.ActivityTaskEditBinding
+import com.example.todo_list.util.ReminderManager
+import com.example.todo_list.util.TimeUtil
 import kotlinx.coroutines.launch
-import android.widget.ArrayAdapter
+import java.util.Calendar
 
 class TaskEditActivity : AppCompatActivity() {
 
     private val categories = arrayOf("默认", "学习", "工作", "生活")
+    private val priorityNames = arrayOf("无", "低", "中", "高")
+
+    // 选中的截止日期，null 表示未设置
+    private var selectedDueDate: Long? = null
 
     companion object {
         const val EXTRA_TASK_ID = "task_id"
@@ -38,6 +47,8 @@ class TaskEditActivity : AppCompatActivity() {
         setContentView(binding.root)
         binding.categorySpinner.adapter =
             ArrayAdapter(this, android.R.layout.simple_spinner_dropdown_item, categories)
+        binding.prioritySpinner.adapter =
+            ArrayAdapter(this, android.R.layout.simple_spinner_dropdown_item, priorityNames)
 
         setSupportActionBar(binding.toolbar)
         supportActionBar?.setDisplayHomeAsUpEnabled(true)   // 显示返回箭头
@@ -51,9 +62,44 @@ class TaskEditActivity : AppCompatActivity() {
             setupCreateMode()
         }
 
+        binding.btnPickDatetime.setOnClickListener { showDateTimePicker() }
+
+        binding.btnClearDatetime.setOnClickListener {
+            selectedDueDate = null
+            binding.btnPickDatetime.text = getString(R.string.action_set_date)
+        }
+
         binding.saveButton.setOnClickListener {
             saveTask()
         }
+    }
+
+    private fun showDateTimePicker() {
+        val calendar = Calendar.getInstance()
+
+        DatePickerDialog(
+            this,
+            { _, year, month, day ->
+                // ⚠️ month 是 0~11（0 代表 1 月），直接传给 Calendar.set() 即可，不要 ±1
+                TimePickerDialog(
+                    this,
+                    { _, hour, minute ->
+                        val cal = Calendar.getInstance().apply {
+                            set(year, month, day, hour, minute, 0)
+                            set(Calendar.MILLISECOND, 0)   // 必须清零，否则排序和"是不是今天"会出错
+                        }
+                        selectedDueDate = cal.timeInMillis
+                        binding.btnPickDatetime.text = TimeUtil.format(cal.timeInMillis)
+                    },
+                    calendar.get(Calendar.HOUR_OF_DAY),
+                    calendar.get(Calendar.MINUTE),
+                    true
+                ).show()
+            },
+            calendar.get(Calendar.YEAR),
+            calendar.get(Calendar.MONTH),
+            calendar.get(Calendar.DAY_OF_MONTH)
+        ).show()
     }
 
     private fun setupEditMode() {
@@ -73,6 +119,16 @@ class TaskEditActivity : AppCompatActivity() {
             binding.completedCheckBox.isChecked = task.isCompleted
             val index = categories.indexOf(task.category)
             if (index >= 0) binding.categorySpinner.setSelection(index)
+            binding.prioritySpinner.setSelection(task.priority.coerceIn(0, 3))
+
+            // 备注 / 链接
+            binding.noteEditText.setText(task.note)
+            binding.linkEditText.setText(task.link)
+
+            // 截止日期
+            selectedDueDate = task.dueDate
+            binding.btnPickDatetime.text =
+                task.dueDate?.let { TimeUtil.format(it) } ?: getString(R.string.action_set_date)
         }
     }
 
@@ -97,28 +153,45 @@ class TaskEditActivity : AppCompatActivity() {
             // ⚠️ 必须先取出 Spinner 的当前选中值，不能等到协程里再取
             //    （binding 在 finish() 后可能失效）
             val category = binding.categorySpinner.selectedItem?.toString() ?: "默认"
+            val priority = binding.prioritySpinner.selectedItemPosition
+            val note = binding.noteEditText.text?.toString()?.trim().orEmpty()
+            val link = binding.linkEditText.text?.toString()?.trim().orEmpty()
+            val dueDate = selectedDueDate
 
             if (taskId != NO_TASK_ID) {
                 val existing = TaskRepository.getTaskById(taskId)
                 if (existing != null) {
-                    TaskRepository.updateTask(
-                        existing.copy(
-                            title = title,
-                            description = description,
-                            isCompleted = isCompleted,
-                            category = category      // ← 分类也要存
-                        )
-                    )
-                }
-            } else {
-                TaskRepository.addTask(
-                    Task(
+                    val updated = existing.copy(
                         title = title,
                         description = description,
                         isCompleted = isCompleted,
-                        category = category          // ← 分类也要存
+                        category = category,
+                        priority = priority,
+                        note = note,
+                        link = link,
+                        dueDate = dueDate,
+                        reminderTime = dueDate      // 有截止日期就到点提醒
                     )
+                    TaskRepository.updateTask(updated)
+                    // 先取消旧的再注册新的，避免改了日期后还按老时间提醒
+                    ReminderManager.cancel(this@TaskEditActivity, updated.id)
+                    ReminderManager.schedule(this@TaskEditActivity, updated)
+                }
+            } else {
+                val newTask = Task(
+                    title = title,
+                    description = description,
+                    isCompleted = isCompleted,
+                    category = category,
+                    priority = priority,
+                    note = note,
+                    link = link,
+                    dueDate = dueDate,
+                    reminderTime = dueDate
                 )
+                val newId = TaskRepository.addTask(newTask)
+                // ⚠️ 新增时 id 是数据库生成的，要用返回值构造带 id 的对象去注册
+                ReminderManager.schedule(this@TaskEditActivity, newTask.copy(id = newId))
             }
 
             Toast.makeText(this@TaskEditActivity, R.string.msg_save_success, Toast.LENGTH_SHORT)

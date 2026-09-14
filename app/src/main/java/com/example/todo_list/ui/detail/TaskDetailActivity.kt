@@ -6,6 +6,7 @@ import android.content.Intent
 import android.content.pm.PackageManager
 import android.graphics.Paint
 import android.os.Build
+import android.net.Uri
 import android.os.Bundle
 import android.util.Log
 import android.view.View
@@ -21,6 +22,8 @@ import com.example.todo_list.data.TaskRepository
 import com.example.todo_list.databinding.ActivityTaskDetailBinding
 import com.example.todo_list.receiver.TaskReceiver
 import com.example.todo_list.ui.edit.TaskEditActivity
+import com.example.todo_list.util.ReminderManager
+import com.example.todo_list.util.TimeUtil
 import kotlinx.coroutines.launch
 
 class TaskDetailActivity : AppCompatActivity() {
@@ -130,6 +133,44 @@ class TaskDetailActivity : AppCompatActivity() {
             binding.txvCategory.text = task.category
         }
 
+        // 截止日期：过期且未完成 → 红色
+        val dueDate = task.dueDate
+        if (dueDate != null) {
+            binding.txvDueDate.visibility = View.VISIBLE
+            binding.txvDueDate.text = getString(R.string.label_due_date, TimeUtil.format(dueDate))
+            val isOverdue = !task.isCompleted && dueDate < System.currentTimeMillis()
+            binding.txvDueDate.setTextColor(
+                ContextCompat.getColor(
+                    this,
+                    if (isOverdue) R.color.overdue_red else R.color.text_secondary
+                )
+            )
+        } else {
+            binding.txvDueDate.visibility = View.GONE
+        }
+
+        // 备注：为空时整块隐藏
+        if (task.note.isBlank()) {
+            binding.txvNote.visibility = View.GONE
+        } else {
+            binding.txvNote.visibility = View.VISIBLE
+            binding.txvNote.text = getString(R.string.label_note_with_value, task.note)
+        }
+
+        // 链接：为空时隐藏；有值时加下划线并可点击跳转浏览器
+        if (task.link.isBlank()) {
+            binding.txvLink.visibility = View.GONE
+        } else {
+            binding.txvLink.visibility = View.VISIBLE
+            binding.txvLink.text = task.link
+            binding.txvLink.paintFlags = binding.txvLink.paintFlags or Paint.UNDERLINE_TEXT_FLAG
+            binding.txvLink.setOnClickListener {
+                // ⚠️ 必须补全 http 前缀，否则 Uri.parse 可能崩
+                val url = if (task.link.startsWith("http")) task.link else "https://${task.link}"
+                startActivity(Intent(Intent.ACTION_VIEW, Uri.parse(url)))
+            }
+        }
+
         // 图标表达"点了会发生什么"：
         // 未完成 → 对勾（点它变完成）；已完成 → 撤销（点它变未完成）
         binding.btnToggleComplete.setImageResource(
@@ -163,6 +204,9 @@ class TaskDetailActivity : AppCompatActivity() {
                 .setTitle(R.string.msg_delete_confirm_title)
                 .setPositiveButton(R.string.action_confirm) { _, _ ->
                     lifecycleScope.launch {
+                        // ⚠️ 先取消提醒再删数据：
+                        //    否则到点仍会弹通知，用户点进去任务已不存在会崩溃
+                        ReminderManager.cancel(this@TaskDetailActivity, current.id)
                         TaskRepository.deleteTask(current)
                         Toast.makeText(this@TaskDetailActivity, R.string.msg_task_deleted, Toast.LENGTH_SHORT).show()
                         finish()      // 回到列表页

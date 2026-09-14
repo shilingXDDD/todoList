@@ -97,4 +97,22 @@
 
     <string name="label_category">分类</string>
 
+    <!-- 优先级（第四步） -->
+    <string name="label_priority">优先级</string>
+
+    <!-- 备注 / 链接（第四步） -->
+    <string name="hint_note">备注（选填）</string>
+    <string name="hint_link">学习资料链接（选填）</string>
+    <string name="label_note">备注</string>
+    <string name="label_note_with_value">备注：%1$s</string>
+    <string name="label_link">链接</string>
+
+    <!-- 日期时间（第四步） -->
+    <string name="label_due_date_pick">截止日期</string>
+    <string name="action_set_date">设置</string>
+    <string name="action_clear_date">清除</string>
+
+    <!-- 提醒（第四步） -->
+    <string name="msg_reminder_scheduled">提醒已设置</string>
+
 </resources>
