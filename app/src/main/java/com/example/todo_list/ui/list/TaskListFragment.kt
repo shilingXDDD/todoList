@@ -27,6 +27,7 @@ import com.example.todo_list.databinding.FragmentTaskListBinding
 import com.example.todo_list.service.TaskSyncService
 import com.example.todo_list.ui.detail.TaskDetailActivity
 import com.example.todo_list.ui.edit.TaskEditActivity
+import com.example.todo_list.util.ReminderManager
 import kotlinx.coroutines.launch
 import java.util.Calendar
 
@@ -243,7 +244,17 @@ class TaskListFragment : Fragment() {
                 // updateTask 是 suspend 函数，必须在协程里调用
                 // 写完后不用手动刷新，Flow 会自动推送新列表
                 viewLifecycleOwner.lifecycleScope.launch {
-                    TaskRepository.updateTask(task.copy(isCompleted = isChecked))
+                    val updated = task.copy(isCompleted = isChecked)
+                    TaskRepository.updateTask(updated)
+
+                    // ⚠️ 勾选完成 → 取消提醒（都做完了不该再响）
+                    //    取消勾选 → 重新注册（任务又变成待办了）
+                    val ctx = context ?: return@launch
+                    if (isChecked) {
+                        ReminderManager.cancel(ctx, updated.id)
+                    } else {
+                        ReminderManager.schedule(ctx, updated)
+                    }
                 }
             }
         )

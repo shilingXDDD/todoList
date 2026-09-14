@@ -114,5 +114,6 @@
 
     <!-- 提醒（第四步） -->
     <string name="msg_reminder_scheduled">提醒已设置</string>
+    <string name="msg_reminder_time_past">保存成功（提醒时间已过，未设置提醒）</string>
 
 </resources>

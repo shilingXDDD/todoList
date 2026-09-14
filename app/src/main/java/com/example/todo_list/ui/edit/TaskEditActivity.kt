@@ -85,8 +85,11 @@ class TaskEditActivity : AppCompatActivity() {
                     this,
                     { _, hour, minute ->
                         val cal = Calendar.getInstance().apply {
-                            set(year, month, day, hour, minute, 0)
-                            set(Calendar.MILLISECOND, 0)   // 必须清零，否则排序和"是不是今天"会出错
+                            // ⚠️ 秒沿用当前秒数，不要写死 0
+                            //    写 0 的话：当前 14:30:45 选 14:31，实际提醒是 14:31:00，
+                            //    只有 15 秒后就响，和"1 分钟后"的预期不符
+                            set(year, month, day, hour, minute, calendar.get(Calendar.SECOND))
+                            set(Calendar.MILLISECOND, 0)   // 毫秒必须清零，否则排序和"是不是今天"会出错
                         }
                         selectedDueDate = cal.timeInMillis
                         binding.btnPickDatetime.text = TimeUtil.format(cal.timeInMillis)
@@ -157,6 +160,7 @@ class TaskEditActivity : AppCompatActivity() {
             val note = binding.noteEditText.text?.toString()?.trim().orEmpty()
             val link = binding.linkEditText.text?.toString()?.trim().orEmpty()
             val dueDate = selectedDueDate
+            var scheduled = false
 
             if (taskId != NO_TASK_ID) {
                 val existing = TaskRepository.getTaskById(taskId)
@@ -175,7 +179,8 @@ class TaskEditActivity : AppCompatActivity() {
                     TaskRepository.updateTask(updated)
                     // 先取消旧的再注册新的，避免改了日期后还按老时间提醒
                     ReminderManager.cancel(this@TaskEditActivity, updated.id)
-                    ReminderManager.schedule(this@TaskEditActivity, updated)
+                    val ok = ReminderManager.schedule(this@TaskEditActivity, updated)
+                    scheduled = dueDate != null && ok
                 }
             } else {
                 val newTask = Task(
@@ -191,11 +196,18 @@ class TaskEditActivity : AppCompatActivity() {
                 )
                 val newId = TaskRepository.addTask(newTask)
                 // ⚠️ 新增时 id 是数据库生成的，要用返回值构造带 id 的对象去注册
-                ReminderManager.schedule(this@TaskEditActivity, newTask.copy(id = newId))
+                val ok = ReminderManager.schedule(this@TaskEditActivity, newTask.copy(id = newId))
+                scheduled = dueDate != null && ok
             }
 
-            Toast.makeText(this@TaskEditActivity, R.string.msg_save_success, Toast.LENGTH_SHORT)
-                .show()
+            // 提醒注册结果要让用户看到，否则根本不知道有没有设上
+            val msg = when {
+                dueDate == null -> getString(R.string.msg_save_success)
+                scheduled -> getString(R.string.msg_reminder_scheduled) + "：" +
+                        TimeUtil.format(dueDate)
+                else -> getString(R.string.msg_reminder_time_past)
+            }
+            Toast.makeText(this@TaskEditActivity, msg, Toast.LENGTH_LONG).show()
             finish()  // 关闭当前页，回到列表页
         }
     }
