@@ -1,32 +1,65 @@
-<resources xmlns:tools="http://schemas.android.com/tools">
-    <!-- Base application theme. -->
+<resources>
+
+    <!-- ============================================================
+         应用主题：滴答清单风格（浅灰白底 + 白色卡片 + 清爽蓝）
+         ============================================================ -->
     <style name="Theme.Todolist" parent="Theme.MaterialComponents.Light.NoActionBar">
-        <!-- Primary brand color. -->
-        <item name="colorPrimary">@color/purple_500</item>
-        <item name="colorPrimaryVariant">@color/purple_700</item>
+
+        <!-- 主色调：清爽蓝  -->
+        <item name="colorPrimary">@color/primary</item>
+        <item name="colorPrimaryVariant">@color/primary_dark</item>
         <item name="colorOnPrimary">@color/white</item>
-        <!-- Secondary brand color. -->
-        <item name="colorSecondary">@color/teal_700</item>
-        <item name="colorSecondaryVariant">@color/teal_700</item>
+
+        <!-- 次色调：与主色同源，避免色彩杂乱 -->
+        <item name="colorSecondary">@color/primary</item>
+        <item name="colorSecondaryVariant">@color/primary_dark</item>
         <item name="colorOnSecondary">@color/white</item>
 
         <!-- AppCompat 的对话框按钮文字颜色直接读 colorAccent。
              MaterialComponents 主题默认只定义 colorSecondary，不定义 colorAccent，
              缺了它按钮文字会变成看不见的颜色。 -->
-        <item name="colorAccent">@color/purple_500</item>
+        <item name="colorAccent">@color/primary</item>
 
-        <!-- 背景与文字 -->
-        <item name="android:windowBackground">@color/white</item>
+        <!-- 背景与表面 -->
+        <!-- 窗口背景用浅灰白，让白色卡片自然浮现 -->
+        <item name="android:windowBackground">@color/background</item>
         <item name="colorSurface">@color/white</item>
-        <item name="colorOnSurface">@color/black</item>
+        <item name="colorOnSurface">@color/text_primary</item>
         <item name="colorError">@color/delete_red</item>
-        <item name="android:textColorPrimary">@color/black</item>
-        <item name="android:textColorSecondary">@color/text_secondary_light</item>
+        <item name="colorOnError">@color/white</item>
 
-        <!-- Status bar / Navigation bar. -->
-        <item name="android:statusBarColor">?attr/colorPrimaryVariant</item>
-        <item name="android:windowLightStatusBar" tools:targetApi="23">false</item>
-        <item name="android:navigationBarColor" tools:targetApi="21">@color/white</item>
-        <item name="android:windowLightNavigationBar" tools:targetApi="27">true</item>
+        <!--  文字层级 -->
+        <item name="android:textColorPrimary">@color/text_primary</item>
+        <item name="android:textColorSecondary">@color/text_secondary</item>
+        <item name="android:textColorHint">@color/text_hint</item>
+
+        <!-- 状态栏 / 导航栏 - -->
+        <!-- 白底状态栏 + 深色图标，与顶部白色工具栏连成一片 -->
+        <item name="android:statusBarColor">@color/white</item>
+        <item name="android:windowLightStatusBar">true</item>
+        <item name="android:navigationBarColor">@color/white</item>
+        <item name="android:windowLightNavigationBar">true</item>
+
+        <!--  控件默认样式（统一收口到 styles.xml）  -->
+        <item name="materialButtonStyle">@style/Widget.App.Button</item>
+        <item name="textInputStyle">@style/Widget.App.TextInputLayout</item>
+        <item name="materialCardViewStyle">@style/Widget.App.CardView</item>
+        <item name="bottomNavigationStyle">@style/Widget.App.BottomNavigation</item>
+        <item name="floatingActionButtonStyle">@style/Widget.App.FloatingActionButton</item>
+        <item name="toolbarStyle">@style/Widget.App.Toolbar</item>
+
+        <!--  对话框  -->
+        <!-- 用浅色 Overlay，避免 AlertDialog 跟随系统变暗导致文字看不清 -->
+        <item name="alertDialogTheme">@style/ThemeOverlay.App.Dialog.Alert</item>
+        <item name="materialAlertDialogTheme">@style/ThemeOverlay.App.Dialog.Alert</item>
     </style>
+
+    <style name="ThemeOverlay.App.Dialog.Alert" parent="ThemeOverlay.MaterialComponents.Dialog.Alert">
+        <item name="colorPrimary">@color/primary</item>
+        <item name="colorAccent">@color/primary</item>
+        <item name="android:textColorPrimary">@color/text_primary</item>
+        <item name="buttonBarPositiveButtonStyle">@style/Widget.App.Button.TextButton</item>
+        <item name="buttonBarNegativeButtonStyle">@style/Widget.App.Button.TextButton</item>
+    </style>
+
 </resources>

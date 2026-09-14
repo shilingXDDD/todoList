@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- 筛选 Chip：选中浅蓝底，未选中白色 -->
+<selector xmlns:android="http://schemas.android.com/apk/res/android">
+    <item android:color="@color/primary_light" android:state_checked="true" />
+    <item android:color="@color/white" />
+</selector>

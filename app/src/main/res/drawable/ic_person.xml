@@ -1,0 +1,16 @@
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="24dp"
+    android:height="24dp"
+    android:viewportWidth="24"
+    android:viewportHeight="24">
+
+    <!-- 默认头像：人形图标，设置页头像占位 -->
+    <path
+        android:fillColor="@color/primary"
+        android:pathData="M12,11.5A3.75,3.75 0,1 1,15.75 7.75A3.75,3.75 0,0 1,12 11.5z" />
+
+    <path
+        android:fillColor="@color/primary"
+        android:pathData="M12,13.5c3.6,0 6.5,2.1 6.5,4.7v1.3H5.5v-1.3C5.5,15.6 8.4,13.5 12,13.5z" />
+
+</vector>

@@ -3,9 +3,11 @@ package com.example.todo_list.ui.list
 import android.graphics.Paint
 import android.view.LayoutInflater
 import android.view.ViewGroup
+import androidx.core.content.ContextCompat
 import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.ListAdapter
 import androidx.recyclerview.widget.RecyclerView
+import com.example.todo_list.R
 import com.example.todo_list.data.Task
 import com.example.todo_list.databinding.ItemTaskBinding
 
@@ -36,13 +38,18 @@ class TaskAdapter(
             holder.binding.descriptionTextView.text = task.description
         }
 
-        // 完成后标题加中划线
+        // 完成后标题加中划线 + 置灰
         holder.binding.titleTextView.paintFlags =
             if (task.isCompleted) {
                 holder.binding.titleTextView.paintFlags or Paint.STRIKE_THRU_TEXT_FLAG
             } else {
                 holder.binding.titleTextView.paintFlags and Paint.STRIKE_THRU_TEXT_FLAG.inv()
             }
+
+        val titleColorRes = if (task.isCompleted) R.color.text_disabled else R.color.text_primary
+        holder.binding.titleTextView.setTextColor(
+            ContextCompat.getColor(holder.itemView.context, titleColorRes)
+        )
 
         // 整行点击 → 进入编辑页
         holder.binding.root.setOnClickListener {

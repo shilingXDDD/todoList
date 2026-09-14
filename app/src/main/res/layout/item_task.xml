@@ -1,57 +1,85 @@
 <?xml version="1.0" encoding="utf-8"?>
-<androidx.constraintlayout.widget.ConstraintLayout
+<com.google.android.material.card.MaterialCardView
         xmlns:android="http://schemas.android.com/apk/res/android"
         xmlns:app="http://schemas.android.com/apk/res-auto"
         xmlns:tools="http://schemas.android.com/tools"
+        style="@style/Widget.App.CardView.ListItem"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:paddingStart="16dp"
-        android:paddingEnd="16dp"
-        android:paddingTop="12dp"
-        android:paddingBottom="12dp"
-        android:background="?attr/selectableItemBackground"
+        android:layout_marginStart="12dp"
+        android:layout_marginEnd="12dp"
+        android:layout_marginTop="5dp"
+        android:layout_marginBottom="5dp"
         android:clickable="true"
         android:focusable="true">
-    <CheckBox
-            android:id="@+id/completedCheckBox"
-            android:layout_width="wrap_content"
+
+    <androidx.constraintlayout.widget.ConstraintLayout
+            android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toTopOf="parent"
-            app:layout_constraintBottom_toBottomOf="parent" />
+            android:paddingStart="14dp"
+            android:paddingEnd="14dp"
+            android:paddingTop="14dp"
+            android:paddingBottom="14dp">
 
-    <LinearLayout
-            android:layout_width="0dp"
-            android:layout_height="wrap_content"
-            android:orientation="vertical"
-            android:layout_marginStart="12dp"
-            app:layout_constraintStart_toEndOf="@id/completedCheckBox"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintTop_toTopOf="parent"
-            app:layout_constraintBottom_toBottomOf="parent">
-
-        <TextView
-                android:id="@+id/titleTextView"
-                android:layout_width="match_parent"
+        <!-- 自定义圆形复选框：未选中灰空心圆，选中蓝实心圆带勾 -->
+        <CheckBox
+                android:id="@+id/completedCheckBox"
+                android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:textSize="16sp"
-                android:textStyle="bold"
-                android:textColor="?attr/colorOnSurface"
-                android:maxLines="1"
-                android:ellipsize="end"
-                android:hint="@string/hint_task_title"/>
+                android:button="@drawable/checkbox_circle_selector"
+                android:minWidth="0dp"
+                android:minHeight="0dp"
+                app:layout_constraintBottom_toBottomOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toTopOf="parent"
+                tools:checked="true" />
 
-        <TextView
-                android:id="@+id/descriptionTextView"
-                android:layout_width="match_parent"
+        <LinearLayout
+                android:layout_width="0dp"
                 android:layout_height="wrap_content"
-                android:layout_marginTop="2dp"
-                android:textSize="13sp"
-                android:textColor="?android:attr/textColorSecondary"
-                android:maxLines="1"
-                android:ellipsize="end"
-                android:hint="@string/hint_task_description" />
+                android:layout_marginStart="12dp"
+                android:orientation="vertical"
+                app:layout_constraintBottom_toBottomOf="parent"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toEndOf="@id/completedCheckBox"
+                app:layout_constraintTop_toTopOf="parent">
 
-    </LinearLayout>
+            <TextView
+                    android:id="@+id/titleTextView"
+                    style="@style/TextAppearance.App.Title"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:ellipsize="end"
+                    android:maxLines="1"
+                    tools:text="完成 Android 课设" />
 
-</androidx.constraintlayout.widget.ConstraintLayout>
+            <TextView
+                    android:id="@+id/descriptionTextView"
+                    style="@style/TextAppearance.App.Caption"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="3dp"
+                    android:ellipsize="end"
+                    android:maxLines="1"
+                    tools:text="把 UI 重构成滴答清单风格" />
+
+            <!-- ============ 截止日期 ============
+                 Task 暂无日期字段，暂时不显示；
+                 第四步加上 dueDate 后，把 visibility 改为 visible，
+                 并在 Adapter 里判断过期 → 文字变红（@color/overdue_red）。
+                 =================================-->
+            <TextView
+                    android:id="@+id/dueDateTextView"
+                    style="@style/TextAppearance.App.Caption"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="6dp"
+                    android:visibility="gone"
+                    tools:text="截止：2026-09-15 18:00"
+                    tools:visibility="visible" />
+
+        </LinearLayout>
+
+    </androidx.constraintlayout.widget.ConstraintLayout>
+
+</com.google.android.material.card.MaterialCardView>

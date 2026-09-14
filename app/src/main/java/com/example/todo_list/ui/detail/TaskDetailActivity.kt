@@ -7,6 +7,7 @@ import android.content.pm.PackageManager
 import android.graphics.Paint
 import android.os.Build
 import android.os.Bundle
+import android.util.Log
 import android.widget.Toast
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.appcompat.app.AlertDialog
@@ -24,6 +25,7 @@ import kotlinx.coroutines.launch
 class TaskDetailActivity : AppCompatActivity() {
 
     companion object {
+        private const val TAG = "TaskDetail"
         private const val EXTRA_TASK_ID = "task_id"
         private const val NO_TASK_ID = -1L
 
@@ -33,6 +35,15 @@ class TaskDetailActivity : AppCompatActivity() {
             context.startActivity(intent)
         }
     }
+
+    /**
+     * 权限申请通过时，要补发的那次点击动作。
+     *
+     * 背景：Android 13+ 第一次点「提醒」只会弹权限框，不发通知，
+     * 用户会以为"点了没反应"。存下这个动作，等用户点了「允许」立刻补发，
+     * 就不需要再点第二次了。
+     */
+    private var pendingReminderAction: (() -> Unit)? = null
 
     private val binding by lazy {
         ActivityTaskDetailBinding.inflate(layoutInflater)
@@ -48,13 +59,18 @@ class TaskDetailActivity : AppCompatActivity() {
      */
     private val requestNotificationPermission =
         registerForActivityResult(ActivityResultContracts.RequestPermission()) { granted ->
-            if (!granted) {
+            if (granted) {
+                // 用户点了「允许」→ 立刻补发刚才那次点击，不用再点一次
+                Log.d(TAG, "权限已授予，补发提醒")
+                pendingReminderAction?.invoke()
+            } else {
                 Toast.makeText(
                     this,
                     R.string.msg_notification_permission_denied,
                     Toast.LENGTH_SHORT
                 ).show()
             }
+            pendingReminderAction = null
         }
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -150,14 +166,24 @@ class TaskDetailActivity : AppCompatActivity() {
         }
 
         binding.btnTestReminder.setOnClickListener {
-            val current = currentTask ?: return@setOnClickListener
+            val current = currentTask
+            if (current == null) {
+                // 数据库查询是异步的，进页面立刻点就可能还是 null
+                Log.w(TAG, "❌ currentTask 为空，提醒未发出")
+                Toast.makeText(this, "任务尚未加载完成，请稍后再试", Toast.LENGTH_SHORT).show()
+                return@setOnClickListener
+            }
+            Log.d(TAG, "点铃铛：taskId=${current.id}, title=${current.title}")
 
             ensureNotificationPermission {
-                // 发送显式广播（同一套写法：setPackage）
+                // 显式广播：直接指定 Receiver 的类名。
+                // 比 setPackage 更可靠——静态注册的 Receiver 一定能被唤醒，
+                // 不受 Android 8.0+ 隐式广播限制的影响。
                 val intent = Intent(TaskReceiver.ACTION_TASK_REMIND)
-                    .setPackage(packageName)
+                    .setClassName(this@TaskDetailActivity, TaskReceiver::class.java.name)
                     .putExtra(TaskReceiver.EXTRA_TASK_ID, current.id)
                     .putExtra(TaskReceiver.EXTRA_TASK_TITLE, current.title)
+                Log.d(TAG, "发送广播 → ${intent.action}")
                 sendBroadcast(intent)
 
                 Toast.makeText(this, R.string.msg_reminder_sent, Toast.LENGTH_SHORT).show()
@@ -179,11 +205,13 @@ class TaskDetailActivity : AppCompatActivity() {
             ) == PackageManager.PERMISSION_GRANTED
 
             if (granted) {
+                Log.d(TAG, "权限已具备，直接发提醒")
                 onGranted()
             } else {
+                // 存下动作，等用户在权限框点「允许」后由回调补发
+                Log.d(TAG, "权限不足，先申请（授权后会自动补发）")
+                pendingReminderAction = onGranted
                 requestNotificationPermission.launch(Manifest.permission.POST_NOTIFICATIONS)
-                // 申请是异步的，结果在回调里；用户同意后需再次点击才会发提醒。
-                // 如果想"同意后立刻发送"，可把 onGranted 存成字段，在回调里调用。
             }
         } else {
             onGranted()

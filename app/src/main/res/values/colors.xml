@@ -1,15 +1,75 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <color name="purple_200">#FFBB86FC</color>
-    <color name="purple_500">#FF6200EE</color>
-    <color name="purple_700">#FF3700B3</color>
-    <color name="teal_200">#FF03DAC5</color>
-    <color name="teal_700">#FF018786</color>
-    <color name="black">#FF000000</color>
+
+    <!-- ============================================================
+         基础色
+         ============================================================ -->
     <color name="white">#FFFFFFFF</color>
+    <color name="black">#FF000000</color>
+    <color name="transparent">#00000000</color>
+
+    <!-- ============================================================
+         背景
+         全局统一浅灰白，让白色卡片能"浮"起来
+         ============================================================ -->
+    <color name="background">#FFF7F8FA</color>
     <color name="background_dark">#FF121212</color>
+
+    <!-- 页面级容器（Toolbar / BottomNav 等）保持纯白，与内容区形成层次 -->
+    <color name="surface">#FFFFFFFF</color>
     <color name="surface_dark">#FF1E1E1E</color>
-    <color name="text_secondary_light">#FF666666</color>
-    <color name="text_secondary_dark">#FFB3B3B3</color>
-    <color name="delete_red">#FFD32F2F</color>
+
+    <!-- ============================================================
+         主色调：清爽蓝
+         primary          → 按钮 / FAB / 选中态
+         primary_dark     → 状态栏、按下态
+         primary_light    → 胶囊背景、浅色选中底
+         primary_on_light → 浅蓝底上的文字（保证对比度）
+         ============================================================ -->
+    <color name="primary">#FF4A90E2</color>
+    <color name="primary_dark">#FF3A7BC8</color>
+    <color name="primary_light">#FFE8F2FC</color>
+    <color name="primary_on_light">#FF2C6FBB</color>
+
+    <!-- ============================================================
+         文字层级
+         text_primary   → 标题、正文主要信息
+         text_secondary → 描述、辅助说明、未选中态
+         text_hint      → 输入框提示、占位
+         text_disabled  → 已完成任务的次要文本
+         ============================================================ -->
+    <color name="text_primary">#FF1F2937</color>
+    <color name="text_secondary">#FF9CA3AF</color>
+    <color name="text_hint">#FFC0C6CF</color>
+    <color name="text_disabled">#FFB8BDC6</color>
+
+    <!-- 深色模式下对应的文字色（第五步做深色模式时用） -->
+    <color name="text_primary_dark">#FFE8EAED</color>
+    <color name="text_secondary_dark">#FF9AA0A6</color>
+
+    <!-- ============================================================
+         功能色
+         ============================================================ -->
+    <color name="overdue_red">#FFEF4444</color>      <!-- 过期任务 -->
+    <color name="delete_red">#FFEF4444</color>       <!-- 删除类操作，与过期同色系 -->
+    <color name="success_green">#FF10B981</color>    <!-- 已完成 / 成功态 -->
+
+    <!-- ============================================================
+         分割线与描边
+         divider → 卡片内部条目之间的细线
+         border  → 输入框默认描边
+         ============================================================ -->
+    <color name="divider">#FFEBEDF0</color>
+    <color name="border">#FFE5E7EB</color>
+
+    <!-- ============================================================
+         卡片
+         ============================================================ -->
+    <color name="card_background">#FFFFFFFF</color>
+
+    <!-- ============================================================
+         复选框 / 筛选器
+         ============================================================ -->
+    <color name="checkbox_unchecked_stroke">#FFC0C6CF</color>
+
 </resources>

@@ -9,6 +9,12 @@ import kotlinx.coroutines.flow.Flow
 
 @Dao
 interface TaskDao {
+    @Query("SELECT COUNT(*) FROM tasks")
+    fun countAll(): Flow<Int>
+
+    @Query("SELECT COUNT(*) FROM tasks WHERE isCompleted = 1")
+    fun countCompleted(): Flow<Int>
+
     // 返回 Flow：数据一变自动推送新列表，UI 跟着刷新
     @Query("SELECT * FROM tasks ORDER BY id DESC")
     fun getAllTasks(): Flow<List<Task>>

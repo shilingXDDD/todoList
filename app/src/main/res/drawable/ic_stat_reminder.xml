@@ -1,0 +1,20 @@
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="24dp"
+    android:height="24dp"
+    android:viewportWidth="24"
+    android:viewportHeight="24">
+
+    <!-- 铃身：实心纯白（通知图标只认轮廓，所以必须填充，不能只描边） -->
+    <path
+        android:fillColor="@android:color/white"
+        android:pathData="M12,3a6,6 0,0 0,-6 6v3.6L4.5,16h15L18,12.6V9a6,6 0,0 0,-6 -6z" />
+
+    <!-- 铃舌：白色粗弧线 -->
+    <path
+        android:fillColor="@android:color/transparent"
+        android:pathData="M9.8,18.3a2.4,2.4 0,0 0,4.4 0"
+        android:strokeWidth="2"
+        android:strokeColor="@android:color/white"
+        android:strokeLineCap="round" />
+
+</vector>

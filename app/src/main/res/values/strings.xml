@@ -5,6 +5,13 @@
     <string name="title_task_list">我的任务</string>
     <string name="empty_task_list">暂无任务，点击右下角按钮添加</string>
 
+    <!-- 列表页：日期筛选器（组件已就绪，逻辑实现后再启用） -->
+    <string name="filter_all">全部</string>
+    <string name="filter_today">今天</string>
+    <string name="filter_overdue">已过期</string>
+    <string name="label_due_date">截止：%1$s</string>
+    <string name="label_overdue">已过期</string>
+
     <!-- 底部导航 / 侧边栏 -->
     <string name="title_calendar">日历</string>
     <string name="title_inbox">收集箱</string>
@@ -21,6 +28,18 @@
     <string name="settings_section_about">关于</string>
     <string name="settings_version_label">版本</string>
     <string name="settings_version_value">1.0（versionCode 1）</string>
+
+    <!-- 设置页：分组标题（外观 / 日期与时间两组组件已就绪，逻辑实现后再启用） -->
+    <string name="settings_group_function">功能模块</string>
+    <string name="settings_group_appearance">外观</string>
+    <string name="settings_group_datetime">日期与时间</string>
+    <string name="settings_item_dark_mode">深色模式</string>
+    <string name="settings_item_dark_mode_summary">跟随系统或手动切换</string>
+    <string name="settings_item_statistics">统计</string>
+    <string name="settings_item_statistics_summary">查看任务完成情况</string>
+    <string name="settings_item_date_format">日期格式</string>
+    <string name="settings_item_date_format_summary">yyyy-MM-dd HH:mm</string>
+    <string name="settings_user_subtitle">点击右侧按钮保存昵称</string>
 
     <!-- 详情页 -->
     <string name="title_task_detail">任务详情</string>
@@ -58,5 +77,15 @@
     <string name="msg_reminder_content">你有一个任务待处理</string>
     <string name="msg_reminder_sent">已发送提醒</string>
     <string name="msg_notification_permission_denied">未授予通知权限，将无法收到提醒</string>
+
+    <!-- 同步通知（渠道与提醒分开，用户可分别关闭） -->
+    <string name="channel_name_sync">同步通知</string>
+    <string name="msg_sync_finished_content">任务同步已完成</string>
+
+    <!-- 统计页（第四步） -->
+    <string name="stats_total">任务总数</string>
+    <string name="stats_completed">已完成</string>
+    <string name="stats_pending">未完成</string>
+    <string name="stats_rate">完成率</string>
 
 </resources>

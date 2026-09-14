@@ -4,51 +4,141 @@
         xmlns:app="http://schemas.android.com/apk/res-auto"
         xmlns:tools="http://schemas.android.com/tools"
         android:layout_width="match_parent"
-        android:layout_height="match_parent">
+        android:layout_height="match_parent"
+        android:background="@color/background">
 
-    <Button
-            android:id="@+id/btn_sync"
-            android:layout_width="wrap_content"
+    <!-- ==================== 顶部操作条：与内容区分离 ==================== -->
+    <LinearLayout
+            android:id="@+id/topBar"
+            android:layout_width="0dp"
             android:layout_height="wrap_content"
-            android:layout_marginStart="16dp"
-            android:layout_marginTop="8dp"
-            android:text="@string/action_sync"
+            android:background="@color/white"
+            android:gravity="center_vertical"
+            android:orientation="horizontal"
+            android:paddingStart="16dp"
+            android:paddingEnd="16dp"
+            android:paddingTop="10dp"
+            android:paddingBottom="10dp"
+            app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toTopOf="parent" />
+            app:layout_constraintTop_toTopOf="parent">
 
+        <Button
+                android:id="@+id/btn_sync"
+                style="@style/Widget.App.Button.Outlined"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="@string/action_sync" />
+
+    </LinearLayout>
+
+    <View
+            android:id="@+id/topBarDivider"
+            style="@style/Widget.App.HeaderDivider"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/topBar" />
+
+    <!-- ==================== 日期筛选器 ====================
+         组件已按需求准备就绪；因 Task 暂无日期字段，
+         暂时不显示，等第四步日期逻辑实现后把 visibility 改为 visible 即可。
+         ===================================================== -->
+    <HorizontalScrollView
+            android:id="@+id/dateFilterBar"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:background="@color/background"
+            android:clipToPadding="false"
+            android:paddingStart="16dp"
+            android:paddingEnd="16dp"
+            android:paddingTop="10dp"
+            android:paddingBottom="10dp"
+            android:scrollbars="none"
+            android:visibility="gone"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/topBarDivider"
+            tools:visibility="visible">
+
+        <com.google.android.material.chip.ChipGroup
+                android:id="@+id/filterChipGroup"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                app:chipSpacingHorizontal="8dp"
+                app:singleSelection="true">
+
+            <com.google.android.material.chip.Chip
+                    android:id="@+id/chipFilterAll"
+                    style="@style/Widget.App.Chip.Filter"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:checked="true"
+                    android:text="@string/filter_all" />
+
+            <com.google.android.material.chip.Chip
+                    android:id="@+id/chipFilterToday"
+                    style="@style/Widget.App.Chip.Filter"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="@string/filter_today" />
+
+            <com.google.android.material.chip.Chip
+                    android:id="@+id/chipFilterOverdue"
+                    style="@style/Widget.App.Chip.Filter"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="@string/filter_overdue" />
+
+        </com.google.android.material.chip.ChipGroup>
+
+    </HorizontalScrollView>
+
+    <!-- ==================== 任务列表 ==================== -->
     <androidx.recyclerview.widget.RecyclerView
             android:id="@+id/taskRecyclerView"
             android:layout_width="0dp"
             android:layout_height="0dp"
+            android:clipToPadding="false"
+            android:paddingTop="12dp"
+            android:paddingBottom="88dp"
             app:layoutManager="androidx.recyclerview.widget.LinearLayoutManager"
-            app:layout_constraintTop_toBottomOf="@id/btn_sync"
-            app:layout_constraintTop_toTopOf="parent"
             app:layout_constraintBottom_toBottomOf="parent"
-            app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/topBarDivider"
             tools:listitem="@layout/item_task" />
 
+    <!-- ==================== 空状态 ====================
+         图标用 drawableTop 嵌入同一个 TextView，
+         这样代码只需控制 emptyTextView 一个控件即可整体显隐。
+         ================================================ -->
     <TextView
             android:id="@+id/emptyTextView"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
+            android:drawableTop="@drawable/ic_empty_task"
+            android:drawablePadding="12dp"
+            android:gravity="center"
             android:text="@string/empty_task_list"
+            android:textColor="@color/text_secondary"
             android:textSize="15sp"
-            android:textColor="?android:attr/textColorSecondary"
             android:visibility="gone"
-            app:layout_constraintTop_toTopOf="parent"
             app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintEnd_toEndOf="parent" />
+            app:layout_constraintTop_toBottomOf="@id/topBarDivider"
+            tools:visibility="visible" />
 
+    <!-- ==================== 悬浮按钮 ==================== -->
     <com.google.android.material.floatingactionbutton.FloatingActionButton
             android:id="@+id/addTaskFab"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_margin="16dp"
             android:contentDescription="@string/title_add_task"
-            app:srcCompat="@android:drawable/ic_input_add"
+            app:borderWidth="0dp"
             app:layout_constraintBottom_toBottomOf="parent"
-            app:layout_constraintEnd_toEndOf="parent" />
+            app:layout_constraintEnd_toEndOf="parent"
+            app:srcCompat="@drawable/ic_add" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>

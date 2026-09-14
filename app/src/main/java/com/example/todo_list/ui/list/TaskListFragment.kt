@@ -1,15 +1,21 @@
 package com.example.todo_list.ui.list
 
+import android.Manifest
+import android.app.NotificationChannel
+import android.app.NotificationManager
 import android.content.BroadcastReceiver
 import android.content.Context
 import android.content.Intent
 import android.content.IntentFilter
+import android.content.pm.PackageManager
 import android.os.Build
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.Toast
+import androidx.core.app.NotificationCompat
+import androidx.core.content.ContextCompat
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.lifecycleScope
@@ -37,7 +43,46 @@ class TaskListFragment : Fragment() {
         override fun onReceive(context: Context?, intent: Intent?) {
             isSyncing = false
             Toast.makeText(requireContext(), R.string.msg_sync_finished, Toast.LENGTH_SHORT).show()
+            showSyncNotification()
         }
+    }
+
+    private fun showSyncNotification() {
+        val context = context ?: return          // Fragment 已解绑就不发
+
+        // Android 13+ 没权限就不发
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+            if (ContextCompat.checkSelfPermission(
+                    context, Manifest.permission.POST_NOTIFICATIONS
+                ) != PackageManager.PERMISSION_GRANTED
+            ) return
+        }
+
+        val notificationManager =
+            context.getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
+
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+            notificationManager.createNotificationChannel(
+                NotificationChannel(
+                    CHANNEL_ID_SYNC, getString(R.string.channel_name_sync),
+                    NotificationManager.IMPORTANCE_DEFAULT
+                )
+            )
+        }
+
+        val notification = NotificationCompat.Builder(context, CHANNEL_ID_SYNC)
+            .setSmallIcon(R.drawable.ic_stat_reminder)     // ← 用任务二建的单色图标
+            .setContentTitle(getString(R.string.msg_sync_finished))
+            .setContentText(getString(R.string.msg_sync_finished_content))
+            .setAutoCancel(true)
+            .build()
+
+        notificationManager.notify(NOTIFICATION_ID_SYNC, notification)
+    }
+
+    companion object {
+        private const val CHANNEL_ID_SYNC = "task_sync"
+        private const val NOTIFICATION_ID_SYNC = 1001
     }
 
     override fun onCreateView(

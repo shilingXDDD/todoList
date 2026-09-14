@@ -9,5 +9,13 @@ data class Task(
     val id: Long = 0,
     val title: String,
     val description: String = "",
-    val isCompleted: Boolean = false
+    val isCompleted: Boolean = false,
+    val category: String = "默认",
+    val priority: Int = 0,    //0无 1低 2中 3高
+    val dueDate: Long? = null,
+    val reminderTime: Long? = null,
+    val note: String = "",
+    val link: String = "",
+    val createdAt: Long = System.currentTimeMillis()
+
 )
