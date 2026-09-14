@@ -88,4 +88,13 @@
     <string name="stats_pending">未完成</string>
     <string name="stats_rate">完成率</string>
 
+    <!-- % 在 strings.xml 里必须转义成 %% -->
+    <string name="stats_rate_value">%1$d%%</string>
+
+    <!-- 搜索页（第四步） -->
+    <string name="hint_search">搜索任务</string>
+    <string name="empty_search_result">未找到匹配的任务</string>
+
+    <string name="label_category">分类</string>
+
 </resources>

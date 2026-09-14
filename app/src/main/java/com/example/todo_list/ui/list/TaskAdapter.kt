@@ -29,6 +29,14 @@ class TaskAdapter(
     override fun onBindViewHolder(holder: ViewHolder, position: Int) {
         val task = getItem(position)
 
+        // 分类标签：空内容时隐藏，避免显示一个空胶囊
+        if (task.category.isBlank()) {
+            holder.binding.categoryTextView.visibility = android.view.View.GONE
+        } else {
+            holder.binding.categoryTextView.visibility = android.view.View.VISIBLE
+            holder.binding.categoryTextView.text = task.category
+        }
+
         holder.binding.titleTextView.text = task.title
 
         if (task.description.isBlank()) {

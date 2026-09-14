@@ -63,6 +63,20 @@
                     android:maxLines="1"
                     tools:text="把 UI 重构成滴答清单风格" />
 
+            //列表项展示
+            <TextView
+                android:id="@+id/categoryTextView"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="6dp"
+                android:background="@drawable/bg_pill_gray"
+                android:paddingStart="8dp"
+                android:paddingEnd="8dp"
+                android:paddingTop="2dp"
+                android:paddingBottom="2dp"
+                android:textColor="@color/text_secondary"
+                android:textSize="11sp" />
+
             <!-- ============ 截止日期 ============
                  Task 暂无日期字段，暂时不显示；
                  第四步加上 dueDate 后，把 visibility 改为 visible，

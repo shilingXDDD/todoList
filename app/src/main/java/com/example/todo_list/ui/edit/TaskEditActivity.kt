@@ -12,8 +12,11 @@ import com.example.todo_list.data.Task
 import com.example.todo_list.data.TaskRepository
 import com.example.todo_list.databinding.ActivityTaskEditBinding
 import kotlinx.coroutines.launch
+import android.widget.ArrayAdapter
 
 class TaskEditActivity : AppCompatActivity() {
+
+    private val categories = arrayOf("默认", "学习", "工作", "生活")
 
     companion object {
         const val EXTRA_TASK_ID = "task_id"
@@ -33,6 +36,8 @@ class TaskEditActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         binding = ActivityTaskEditBinding.inflate(layoutInflater)
         setContentView(binding.root)
+        binding.categorySpinner.adapter =
+            ArrayAdapter(this, android.R.layout.simple_spinner_dropdown_item, categories)
 
         setSupportActionBar(binding.toolbar)
         supportActionBar?.setDisplayHomeAsUpEnabled(true)   // 显示返回箭头
@@ -66,6 +71,8 @@ class TaskEditActivity : AppCompatActivity() {
             binding.titleEditText.setText(task.title)
             binding.descriptionEditText.setText(task.description)
             binding.completedCheckBox.isChecked = task.isCompleted
+            val index = categories.indexOf(task.category)
+            if (index >= 0) binding.categorySpinner.setSelection(index)
         }
     }
 
@@ -87,13 +94,30 @@ class TaskEditActivity : AppCompatActivity() {
 
         // 数据库写入放进协程（suspend 函数的硬性要求）
         lifecycleScope.launch {
+            // ⚠️ 必须先取出 Spinner 的当前选中值，不能等到协程里再取
+            //    （binding 在 finish() 后可能失效）
+            val category = binding.categorySpinner.selectedItem?.toString() ?: "默认"
+
             if (taskId != NO_TASK_ID) {
-                TaskRepository.updateTask(
-                    Task(taskId, title, description, isCompleted)
-                )
+                val existing = TaskRepository.getTaskById(taskId)
+                if (existing != null) {
+                    TaskRepository.updateTask(
+                        existing.copy(
+                            title = title,
+                            description = description,
+                            isCompleted = isCompleted,
+                            category = category      // ← 分类也要存
+                        )
+                    )
+                }
             } else {
                 TaskRepository.addTask(
-                    Task(title = title, description = description, isCompleted = isCompleted)
+                    Task(
+                        title = title,
+                        description = description,
+                        isCompleted = isCompleted,
+                        category = category          // ← 分类也要存
+                    )
                 )
             }
 

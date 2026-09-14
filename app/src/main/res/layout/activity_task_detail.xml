@@ -133,6 +133,21 @@
                             android:textStyle="bold"
                             tools:text="完成 Android 课设" />
 
+                    <!-- 分类标签（第四步） -->
+                    <TextView
+                            android:id="@+id/txv_category"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:layout_marginTop="10dp"
+                            android:background="@drawable/bg_pill_gray"
+                            android:paddingStart="12dp"
+                            android:paddingEnd="12dp"
+                            android:paddingTop="5dp"
+                            android:paddingBottom="5dp"
+                            android:textColor="@color/text_secondary"
+                            android:textSize="12sp"
+                            tools:text="学习" />
+
                     <View
                             style="@style/Widget.App.InnerDivider"
                             android:layout_marginTop="16dp"

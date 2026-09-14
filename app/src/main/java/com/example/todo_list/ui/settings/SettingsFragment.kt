@@ -1,6 +1,7 @@
 package com.example.todo_list.ui.settings
 
 import android.content.Context
+import android.content.Intent
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
@@ -9,6 +10,7 @@ import android.widget.Toast
 import androidx.fragment.app.Fragment
 import com.example.todo_list.R
 import com.example.todo_list.databinding.FragmentSettingsBinding
+import com.example.todo_list.ui.statistics.StatisticsActivity
 
 class SettingsFragment : Fragment() {
 
@@ -55,6 +57,11 @@ class SettingsFragment : Fragment() {
         // ===== 2. 保存按钮 =====
         binding.btnSaveNickname.setOnClickListener {
             saveNickname()
+        }
+
+        // ===== 3. 统计入口：跳转到统计页 =====
+        binding.itemStatistics.setOnClickListener {
+            startActivity(Intent(requireContext(), StatisticsActivity::class.java))
         }
     }
 

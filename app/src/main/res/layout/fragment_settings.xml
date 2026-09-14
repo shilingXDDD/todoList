@@ -147,6 +147,23 @@
 
                 </LinearLayout>
 
+                <View style="@style/Widget.App.InnerDivider" />
+
+                <!-- 统计：跳转到 StatisticsActivity -->
+                <LinearLayout
+                        android:id="@+id/itemStatistics"
+                        style="@style/Widget.App.SettingsItem">
+
+                    <TextView
+                            style="@style/Widget.App.SettingsItemTitle"
+                            android:text="@string/settings_item_statistics" />
+
+                    <ImageView
+                            style="@style/Widget.App.SettingsItemArrow"
+                            android:contentDescription="@string/settings_item_statistics" />
+
+                </LinearLayout>
+
             </LinearLayout>
 
         </com.google.android.material.card.MaterialCardView>
@@ -190,21 +207,6 @@
                     <ImageView
                             style="@style/Widget.App.SettingsItemArrow"
                             android:contentDescription="@string/settings_item_dark_mode" />
-
-                </LinearLayout>
-
-                <View style="@style/Widget.App.InnerDivider" />
-
-                <LinearLayout
-                        style="@style/Widget.App.SettingsItem">
-
-                    <TextView
-                            style="@style/Widget.App.SettingsItemTitle"
-                            android:text="@string/settings_item_statistics" />
-
-                    <ImageView
-                            style="@style/Widget.App.SettingsItemArrow"
-                            android:contentDescription="@string/settings_item_statistics" />
 
                 </LinearLayout>
 

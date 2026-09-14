@@ -21,6 +21,7 @@ import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.lifecycleScope
 import androidx.lifecycle.repeatOnLifecycle
 import com.example.todo_list.R
+import com.example.todo_list.data.Task
 import com.example.todo_list.data.TaskRepository
 import com.example.todo_list.databinding.FragmentTaskListBinding
 import com.example.todo_list.service.TaskSyncService
@@ -34,6 +35,10 @@ class TaskListFragment : Fragment() {
     //防重复点击标志位
     private var isSyncing = false
 
+    private var keyword = ""
+
+    private var latestTasks: List<Task> = emptyList()
+
     private var _binding: FragmentTaskListBinding? = null
     private val binding get() = _binding!!
 
@@ -45,6 +50,20 @@ class TaskListFragment : Fragment() {
             Toast.makeText(requireContext(), R.string.msg_sync_finished, Toast.LENGTH_SHORT).show()
             showSyncNotification()
         }
+    }
+
+    private fun setupSearch() {
+        binding.searchView.setOnQueryTextListener(object :
+            androidx.appcompat.widget.SearchView.OnQueryTextListener {
+
+            override fun onQueryTextSubmit(query: String?): Boolean = false
+
+            override fun onQueryTextChange(newText: String?): Boolean {
+                keyword = newText.orEmpty()
+                applyFilter(latestTasks)      // 复用下面的过滤方法
+                return true
+            }
+        })
     }
 
     private fun showSyncNotification() {
@@ -97,6 +116,7 @@ class TaskListFragment : Fragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
         setupRecyclerView()
+        setupSearch()          // ← 漏了这行，搜索框永远不会生效
         observeTasks()
 
         binding.addTaskFab.setOnClickListener {
@@ -140,14 +160,27 @@ class TaskListFragment : Fragment() {
      */
     private fun observeTasks() {
         viewLifecycleOwner.lifecycleScope.launch {
-            viewLifecycleOwner.repeatOnLifecycle(Lifecycle.State.STARTED) {
+            repeatOnLifecycle(Lifecycle.State.STARTED) {
                 TaskRepository.getTasks().collect { tasks ->
-                    taskAdapter.submitList(tasks)
-                    binding.emptyTextView.visibility =
-                        if (tasks.isEmpty()) View.VISIBLE else View.GONE
+                    latestTasks = tasks
+                    applyFilter(tasks)      // applyFilter 内部会 submitList
                 }
             }
         }
+    }
+
+    private fun applyFilter(allTasks: List<Task>){
+        val filtered = if (keyword.isBlank()) allTasks
+        //true表示忽略大小写
+        else allTasks.filter { it.title.contains(keyword, true) }
+
+        taskAdapter.submitList(filtered)
+
+        // 无结果要有明确提示
+        binding.emptyTextView.visibility = if (filtered.isEmpty()) View.VISIBLE else View.GONE
+        binding.emptyTextView.text =
+            if (keyword.isBlank()) getString(R.string.empty_task_list)
+            else getString(R.string.empty_search_result)
     }
 
     private fun setupRecyclerView() {
@@ -174,6 +207,14 @@ class TaskListFragment : Fragment() {
     override fun onStop() {
         super.onStop()
         // ⚠️ 必须注销，否则报 IntentReceiverLeaked（广播接收器泄漏）
-        requireContext().unregisterReceiver(syncReceiver)
+        // ⚠️ 用 context ?: return，别用 requireContext()
+        //    横竖屏重建时 Fragment 可能已与 Activity 解绑，
+        //    requireContext() 会抛 IllegalStateException 导致崩溃
+        val ctx = context ?: return
+        try {
+            ctx.unregisterReceiver(syncReceiver)
+        } catch (e: IllegalArgumentException) {
+            // 接收器本来就没注册成功（例如 onStart 没走到），忽略即可
+        }
     }
 }

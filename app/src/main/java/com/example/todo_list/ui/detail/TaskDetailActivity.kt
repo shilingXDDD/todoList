@@ -8,6 +8,7 @@ import android.graphics.Paint
 import android.os.Build
 import android.os.Bundle
 import android.util.Log
+import android.view.View
 import android.widget.Toast
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.appcompat.app.AlertDialog
@@ -120,6 +121,14 @@ class TaskDetailActivity : AppCompatActivity() {
         binding.txvStatus.text = getString(
             if (task.isCompleted) R.string.status_completed else R.string.status_pending
         )
+
+        // 分类：空字符串时隐藏标签，避免显示一个空胶囊
+        if (task.category.isBlank()) {
+            binding.txvCategory.visibility = View.GONE
+        } else {
+            binding.txvCategory.visibility = View.VISIBLE
+            binding.txvCategory.text = task.category
+        }
 
         // 图标表达"点了会发生什么"：
         // 未完成 → 对勾（点它变完成）；已完成 → 撤销（点它变未完成）
