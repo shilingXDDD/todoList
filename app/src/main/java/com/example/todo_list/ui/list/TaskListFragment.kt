@@ -137,11 +137,12 @@ class TaskListFragment : Fragment() {
     }
 
     private fun startSync() {
-        if (isSyncing) return           // 同步中再点，直接忽略
+        if (isSyncing) {
+            Toast.makeText(requireContext(), R.string.msg_sync_is_running, Toast.LENGTH_SHORT).show()
+            return
+        }
         isSyncing = true
-        requireContext().startService(
-            Intent(requireContext(), TaskSyncService::class.java)
-        )
+        requireContext().startService(Intent(requireContext(), TaskSyncService::class.java))
     }
 
     override fun onStart() {

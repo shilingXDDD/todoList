@@ -1,7 +1,6 @@
 package com.example.todo_list.service
 
 import android.app.Service
-import android.app.Service.START_NOT_STICKY
 import android.content.Intent
 import android.os.IBinder
 import kotlin.concurrent.thread
@@ -20,11 +19,7 @@ class TaskSyncService : Service() {
                 return@thread
             }
 
-
-            sendBroadcast(
-                Intent(ACTION_SYNC_FINISHED).setPackage(packageName)
-            )
-
+            sendBroadcast(Intent(ACTION_SYNC_FINISHED).setPackage(packageName))
             stopSelf()
         }
 
